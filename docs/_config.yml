@@ -1,0 +1,24 @@
+title: MailCleaner
+description: A full-stack email organizer with a web UI for managing email filtering rules and live IMAP preview
+remote_theme: pages-themes/primer@v0.6.0
+plugins:
+  - jekyll-remote-theme
+baseurl: "/mailcleaner"
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
