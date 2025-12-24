@@ -1,0 +1,94 @@
+# MailCleaner Configuration Example
+# Copy this file to config.yaml and customize for your needs
+
+# Email accounts to connect to
+accounts:
+  - name: personal
+    host: imap.gmail.com
+    port: 993
+    tls: true
+    username: your.email@gmail.com
+    # Use password_env to read from environment variable (recommended)
+    password_env: MAILCLEANER_GMAIL_PASSWORD
+    # Or use password directly (not recommended for security)
+    # password: your-app-password
+
+  - name: work
+    host: outlook.office365.com
+    port: 993
+    tls: true
+    username: you@company.com
+    password_env: MAILCLEANER_WORK_PASSWORD
+
+# Rules to execute on emails
+rules:
+  # Delete old newsletters
+  - name: Delete old newsletters
+    account: personal
+    folder: INBOX
+    conditions:
+      from_contains: "@newsletter"
+      older_than_days: 30
+    action:
+      type: delete
+
+  # Move old promotions to trash
+  - name: Cleanup promotions
+    account: personal
+    folder: "[Gmail]/Promotions"
+    conditions:
+      older_than_days: 14
+      is_read: true
+    action:
+      type: move
+      move_to: "[Gmail]/Trash"
+
+  # Archive old read emails
+  - name: Archive old emails
+    account: personal
+    folder: INBOX
+    conditions:
+      older_than_days: 90
+      is_read: true
+    action:
+      type: move
+      move_to: "[Gmail]/All Mail"
+
+  # Flag important sender emails
+  - name: Flag important
+    account: work
+    folder: INBOX
+    conditions:
+      from_contains: "@important-client.com"
+    action:
+      type: flag
+
+  # Mark notification emails as read
+  - name: Auto-read notifications
+    account: work
+    folder: INBOX
+    conditions:
+      from_contains: "noreply@"
+      subject_contains: "[Automated]"
+    action:
+      type: mark_read
+
+  # Delete large attachments older than 60 days
+  - name: Delete large old emails
+    account: personal
+    folder: INBOX
+    conditions:
+      older_than_days: 60
+      has_attachment: true
+      size_larger_than: 10MB
+    action:
+      type: delete
+
+# Schedule configuration
+schedule:
+  # Run every 60 minutes
+  interval_minutes: 60
+
+  # Or use cron expression (overrides interval_minutes)
+  # cron: "0 */2 * * *"  # Every 2 hours
+  # cron: "0 6 * * *"    # Daily at 6 AM
