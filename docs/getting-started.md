@@ -11,45 +11,83 @@ This guide will help you install and configure MailCleaner for your email organi
 
 ## Prerequisites
 
-- **Go 1.21 or later** - Required to build from source
+- **Go 1.21 or later** - Required to build the server and CLI
+- **Node.js 18+** - Required to build the web frontend
+- **SQLite** - Required for data persistence (via CGO)
 - **IMAP-enabled email account** - Most email providers support IMAP
 
 ## Installation
 
 ### Build from Source
 
-Clone the repository and build:
+Clone the repository:
 
 ```bash
 git clone https://github.com/canburak/mailcleaner.git
 cd mailcleaner
-go build -o mailcleaner
 ```
 
-This creates a `mailcleaner` binary in your current directory.
+### Build the Web Server
 
-## Configuration
-
-### Create Configuration File
-
-Create a `config.json` file in the same directory as the binary:
-
-```json
-{
-  "server": "imap.example.com",
-  "port": 993,
-  "username": "your-email@example.com",
-  "password": "your-password",
-  "rules": [
-    {
-      "sender": "newsletter@",
-      "move_to_folder": "Newsletters"
-    }
-  ]
-}
+```bash
+go build -o mailcleaner-server ./cmd/server
 ```
 
-### Common IMAP Server Settings
+### Build the Frontend
+
+```bash
+cd web
+npm install
+npm run build
+cd ..
+```
+
+### Build the CLI Tool
+
+```bash
+go build -o mailcleaner ./cmd/mailcleaner
+```
+
+## Running the Web Server
+
+### Basic Usage
+
+```bash
+./mailcleaner-server
+```
+
+The server runs on `http://localhost:8080` by default.
+
+### With Frontend
+
+```bash
+./mailcleaner-server -static web/dist
+```
+
+### Server Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-port` | HTTP server port | `8080` |
+| `-db` | Database file path | `~/.mailcleaner/data.db` |
+| `-static` | Static files directory | (none) |
+
+### Example
+
+```bash
+./mailcleaner-server -port 3000 -db /var/lib/mailcleaner/data.db -static web/dist
+```
+
+## First Steps with Web UI
+
+1. **Add an Account** - Navigate to Accounts and click "Add Account"
+2. **Configure IMAP Settings** - Enter your email server details
+3. **Test Connection** - Verify the connection works
+4. **Create Rules** - Define patterns to match emails
+5. **Preview** - See which emails match your rules
+6. **Apply** - Move matched emails to their destination folders
+
+## Common IMAP Server Settings
 
 | Provider | Server | Port |
 |----------|--------|------|
@@ -58,44 +96,53 @@ Create a `config.json` file in the same directory as the binary:
 | Yahoo | imap.mail.yahoo.com | 993 |
 | iCloud | imap.mail.me.com | 993 |
 
-**Note**: Some providers require app-specific passwords or enabling "Less Secure Apps" access.
+**Note**: Some providers require app-specific passwords or OAuth2.
 
-## First Run
+## CLI Quick Start
 
-### Test with Dry Run
-
-Always test your configuration with a dry run first:
+For automation or scripting, use the CLI tool:
 
 ```bash
+# Create config file
+cat > config.json << 'EOF'
+{
+  "server": "imap.gmail.com",
+  "port": 993,
+  "username": "your-email@gmail.com",
+  "password": "your-app-password",
+  "rules": [
+    {
+      "sender": "@github.com",
+      "move_to_folder": "GitHub"
+    }
+  ]
+}
+EOF
+
+# Preview what would be moved
 ./mailcleaner -dry-run
-```
 
-This shows what emails would be moved without actually moving them.
-
-### Run for Real
-
-Once you're satisfied with the dry run output:
-
-```bash
+# Apply rules
 ./mailcleaner
 ```
 
-## Troubleshooting
+## Development Mode
 
-### Connection Issues
+For frontend development with hot reload:
 
-- Verify your server and port settings
-- Check that your password is correct
-- Ensure IMAP is enabled in your email provider settings
-- For Gmail, you may need an [App Password](https://support.google.com/accounts/answer/185833)
+```bash
+# Terminal 1: Run the API server
+./mailcleaner-server
 
-### Folder Not Found
+# Terminal 2: Run frontend dev server
+cd web
+npm run dev
+```
 
-- The destination folder must already exist in your mailbox
-- Folder names are case-sensitive on some servers
-- Use the full path for nested folders (e.g., `INBOX/Newsletters`)
+The frontend dev server proxies API requests to the backend.
 
 ## Next Steps
 
 - [Configuration Reference](configuration) - Learn about all configuration options
 - [Usage Examples](usage) - See common use cases and patterns
+- [API Reference](api) - REST API documentation

@@ -1,6 +1,8 @@
 title: MailCleaner
-description: A simple email organizer that matches emails by sender and moves them to folders
-theme: jekyll-theme-cayman
+description: A full-stack email organizer with a web UI for managing email filtering rules and live IMAP preview
+remote_theme: pages-themes/primer@v0.6.0
+plugins:
+  - jekyll-remote-theme
 baseurl: "/mailcleaner"
 
 markdown: kramdown
