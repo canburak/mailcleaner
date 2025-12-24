@@ -12,6 +12,13 @@
   <body>
     {% include warning-banner.html %}
 
+    <!-- Theme toggle button -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme">
+      <span class="theme-toggle-icon icon-moon">🌙</span>
+      <span class="theme-toggle-icon icon-sun">☀️</span>
+      <span class="theme-toggle-text"></span>
+    </button>
+
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
       <h1><a href="{{ "/" | relative_url }}">{{ site.title }}</a></h1>
@@ -27,5 +34,39 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
+
+    <!-- Theme toggle script -->
+    <script>
+      (function() {
+        const toggle = document.getElementById('theme-toggle');
+        const toggleText = toggle.querySelector('.theme-toggle-text');
+
+        function updateToggleText() {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          toggleText.textContent = currentTheme === 'dark' ? 'Light' : 'Dark';
+        }
+
+        function toggleTheme() {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateToggleText();
+        }
+
+        toggle.addEventListener('click', toggleTheme);
+        updateToggleText();
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('theme')) {
+            const newTheme = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            updateToggleText();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

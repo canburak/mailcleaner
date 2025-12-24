@@ -1,1 +1,179 @@
 <!-- Custom head content -->
+<!-- Theme initialization to prevent flash of wrong theme -->
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+
+<style>
+/* Theme CSS Variables */
+:root {
+  /* Light theme (default) */
+  --theme-bg: #ffffff;
+  --theme-bg-secondary: #f6f8fa;
+  --theme-text: #24292f;
+  --theme-text-secondary: #57606a;
+  --theme-border: #d0d7de;
+  --theme-link: #0969da;
+  --theme-link-hover: #0550ae;
+  --theme-code-bg: #f6f8fa;
+  --theme-code-text: #24292f;
+  --theme-blockquote-border: #d0d7de;
+  --theme-table-border: #d0d7de;
+  --theme-table-row-alt: #f6f8fa;
+  --theme-shadow: rgba(31, 35, 40, 0.12);
+  --theme-header-bg: #f6f8fa;
+  --theme-toggle-bg: #e7ecf0;
+  --theme-toggle-hover: #d1d9e0;
+}
+
+[data-theme="dark"] {
+  /* Dark theme */
+  --theme-bg: #0d1117;
+  --theme-bg-secondary: #161b22;
+  --theme-text: #e6edf3;
+  --theme-text-secondary: #8b949e;
+  --theme-border: #30363d;
+  --theme-link: #58a6ff;
+  --theme-link-hover: #79c0ff;
+  --theme-code-bg: #161b22;
+  --theme-code-text: #e6edf3;
+  --theme-blockquote-border: #30363d;
+  --theme-table-border: #30363d;
+  --theme-table-row-alt: #161b22;
+  --theme-shadow: rgba(0, 0, 0, 0.4);
+  --theme-header-bg: #161b22;
+  --theme-toggle-bg: #21262d;
+  --theme-toggle-hover: #30363d;
+}
+
+/* Apply theme colors */
+body {
+  background-color: var(--theme-bg) !important;
+  color: var(--theme-text) !important;
+}
+
+.markdown-body {
+  background-color: var(--theme-bg) !important;
+  color: var(--theme-text) !important;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  color: var(--theme-text) !important;
+  border-bottom-color: var(--theme-border) !important;
+}
+
+.markdown-body a {
+  color: var(--theme-link) !important;
+}
+
+.markdown-body a:hover {
+  color: var(--theme-link-hover) !important;
+}
+
+.markdown-body code,
+.markdown-body pre {
+  background-color: var(--theme-code-bg) !important;
+  color: var(--theme-code-text) !important;
+}
+
+.markdown-body pre {
+  border: 1px solid var(--theme-border) !important;
+}
+
+.markdown-body blockquote {
+  border-left-color: var(--theme-blockquote-border) !important;
+  color: var(--theme-text-secondary) !important;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  border-color: var(--theme-table-border) !important;
+}
+
+.markdown-body table tr {
+  background-color: var(--theme-bg) !important;
+  border-top-color: var(--theme-table-border) !important;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: var(--theme-table-row-alt) !important;
+}
+
+.markdown-body hr {
+  background-color: var(--theme-border) !important;
+}
+
+.markdown-body .highlight {
+  background-color: var(--theme-code-bg) !important;
+}
+
+/* Footer styling */
+.footer {
+  border-top-color: var(--theme-border) !important;
+  color: var(--theme-text-secondary) !important;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  z-index: 999;
+  padding: 8px 12px;
+  background-color: var(--theme-toggle-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--theme-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px var(--theme-shadow);
+}
+
+.theme-toggle:hover {
+  background-color: var(--theme-toggle-hover);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid var(--theme-link);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Hide the icon that doesn't match the current theme */
+[data-theme="light"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+/* Syntax highlighting overrides for dark mode */
+[data-theme="dark"] .markdown-body .highlight .pl-c { color: #8b949e !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-c1 { color: #79c0ff !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-e { color: #d2a8ff !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-en { color: #d2a8ff !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-k { color: #ff7b72 !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-s { color: #a5d6ff !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-pds { color: #a5d6ff !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-v { color: #ffa657 !important; }
+[data-theme="dark"] .markdown-body .highlight .pl-smi { color: #e6edf3 !important; }
+</style>
