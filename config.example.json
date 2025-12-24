@@ -1,0 +1,16 @@
+{
+  "server": "imap.example.com",
+  "port": 993,
+  "username": "your-email@example.com",
+  "password": "your-password",
+  "rules": [
+    {
+      "sender": "newsletter@",
+      "move_to_folder": "Newsletters"
+    },
+    {
+      "sender": "noreply@github.com",
+      "move_to_folder": "GitHub"
+    }
+  ]
+}

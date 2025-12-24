@@ -1,0 +1,8 @@
+# Binary
+mailcleaner
+
+# Config with secrets
+config.json
+
+# Go
+go.sum
