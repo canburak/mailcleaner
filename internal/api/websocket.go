@@ -48,10 +48,10 @@ type PreviewRequest struct {
 }
 
 type PreviewProgress struct {
-	Stage       string `json:"stage"`
-	Current     int    `json:"current"`
-	Total       int    `json:"total"`
-	Message     string `json:"message"`
+	Stage       string          `json:"stage"`
+	Current     int             `json:"current"`
+	Total       int             `json:"total"`
+	Message     string          `json:"message"`
 	MessageData *models.Message `json:"message_data,omitempty"`
 }
 

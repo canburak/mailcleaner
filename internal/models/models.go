@@ -72,10 +72,10 @@ type Message struct {
 
 // PreviewResult represents the result of applying rules to messages
 type PreviewResult struct {
-	TotalMessages   int              `json:"total_messages"`
-	MatchedMessages int              `json:"matched_messages"`
-	Messages        []Message        `json:"messages"`
-	RuleMatches     map[int64]int    `json:"rule_matches"` // rule_id -> match count
+	TotalMessages   int           `json:"total_messages"`
+	MatchedMessages int           `json:"matched_messages"`
+	Messages        []Message     `json:"messages"`
+	RuleMatches     map[int64]int `json:"rule_matches"` // rule_id -> match count
 }
 
 // Folder represents an IMAP folder/mailbox
