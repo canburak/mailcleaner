@@ -92,6 +92,7 @@ func NewMemoryBackend(username, password string) *MemoryBackend {
 		name:     "INBOX",
 		messages: []*MemoryMessage{},
 		uidNext:  1,
+		user:     be.user,
 	}
 	return be
 }
@@ -113,6 +114,7 @@ func (be *MemoryBackend) AddMessage(folder, from, subject, body string) {
 			name:     folder,
 			messages: []*MemoryMessage{},
 			uidNext:  1,
+			user:     be.user,
 		}
 		be.user.mailboxes[folder] = mbox
 	}
@@ -155,6 +157,7 @@ func (be *MemoryBackend) CreateMailbox(name string) {
 			name:     name,
 			messages: []*MemoryMessage{},
 			uidNext:  1,
+			user:     be.user,
 		}
 	}
 }
@@ -204,6 +207,7 @@ func (u *MemoryUser) CreateMailbox(name string) error {
 		name:     name,
 		messages: []*MemoryMessage{},
 		uidNext:  1,
+		user:     u,
 	}
 	return nil
 }
@@ -242,6 +246,7 @@ type MemoryMailbox struct {
 	name     string
 	messages []*MemoryMessage
 	uidNext  uint32
+	user     *MemoryUser
 	mu       sync.RWMutex
 }
 
@@ -376,8 +381,48 @@ func (m *MemoryMailbox) UpdateMessagesFlags(uid bool, seqSet *imap.SeqSet, op im
 }
 
 func (m *MemoryMailbox) CopyMessages(uid bool, seqSet *imap.SeqSet, destName string) error {
-	// This is handled at the user level
-	return errors.New("copy not implemented at mailbox level")
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	// Get destination mailbox
+	m.user.mu.Lock()
+	dest, ok := m.user.mailboxes[destName]
+	if !ok {
+		m.user.mu.Unlock()
+		return errors.New("destination mailbox not found")
+	}
+	m.user.mu.Unlock()
+
+	// Find and copy matching messages
+	for i, msg := range m.messages {
+		if msg.deleted {
+			continue
+		}
+
+		seqNum := uint32(i + 1)
+		var match bool
+		if uid {
+			match = seqSet.Contains(msg.uid)
+		} else {
+			match = seqSet.Contains(seqNum)
+		}
+
+		if match {
+			dest.mu.Lock()
+			copied := &MemoryMessage{
+				uid:     dest.uidNext,
+				from:    msg.from,
+				subject: msg.subject,
+				body:    msg.body,
+				date:    msg.date,
+				flags:   append([]string{}, msg.flags...),
+			}
+			dest.messages = append(dest.messages, copied)
+			dest.uidNext++
+			dest.mu.Unlock()
+		}
+	}
+	return nil
 }
 
 func (m *MemoryMailbox) Expunge() error {

@@ -56,4 +56,4 @@ The `sender` field performs a case-insensitive partial match on the email addres
 
 ## Supported Protocols
 
-- **IMAP** - Internet Message Access Protocol (TLS only)
+- **IMAP** - Internet Message Access Protocol (TLS enabled by default, set `"tls": false` for plaintext)

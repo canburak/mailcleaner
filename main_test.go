@@ -3,13 +3,24 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/emersion/go-imap"
 
 	"github.com/mailcleaner/mailcleaner/testserver"
 )
+
+// parseServerAddr extracts host and port from a server address string
+func parseServerAddr(addr string) (host string, port int) {
+	for i := len(addr) - 1; i >= 0; i-- {
+		if addr[i] == ':' {
+			host = addr[:i]
+			fmt.Sscanf(addr[i+1:], "%d", &port)
+			return
+		}
+	}
+	return addr, 0
+}
 
 func TestMatchesSender(t *testing.T) {
 	tests := []struct {
@@ -190,13 +201,7 @@ func TestIntegrationEmptyInbox(t *testing.T) {
 	}
 	defer server.Close()
 
-	// Parse address
-	parts := strings.Split(server.Addr, ":")
-	host := parts[0]
-	port := 0
-	if len(parts) > 1 {
-		fmt.Sscanf(parts[1], "%d", &port)
-	}
+	host, port := parseServerAddr(server.Addr)
 
 	tlsFalse := false
 	config := &Config{
@@ -229,13 +234,7 @@ func TestIntegrationMatchAndDryRun(t *testing.T) {
 	server.AddMessage("friend@gmail.com", "Hello", "Hi there!")
 	server.AddMessage("sales@newsletter.com", "Special Offer", "Buy now!")
 
-	// Parse address
-	parts := strings.Split(server.Addr, ":")
-	host := parts[0]
-	port := 0
-	if len(parts) > 1 {
-		fmt.Sscanf(parts[1], "%d", &port)
-	}
+	host, port := parseServerAddr(server.Addr)
 
 	tlsFalse := false
 	config := &Config{
@@ -272,12 +271,7 @@ func TestIntegrationInvalidCredentials(t *testing.T) {
 	}
 	defer server.Close()
 
-	parts := strings.Split(server.Addr, ":")
-	host := parts[0]
-	port := 0
-	if len(parts) > 1 {
-		fmt.Sscanf(parts[1], "%d", &port)
-	}
+	host, port := parseServerAddr(server.Addr)
 
 	tlsFalse := false
 	config := &Config{
@@ -293,7 +287,7 @@ func TestIntegrationInvalidCredentials(t *testing.T) {
 	if err == nil {
 		t.Error("run() with wrong password should fail")
 	}
-	if !strings.Contains(err.Error(), "login failed") {
+	if err.Error() != "login failed: invalid credentials" {
 		t.Errorf("Expected login failure error, got: %v", err)
 	}
 }
@@ -307,12 +301,7 @@ func TestIntegrationNoMatchingRules(t *testing.T) {
 
 	server.AddMessage("friend@gmail.com", "Hello", "Hi there!")
 
-	parts := strings.Split(server.Addr, ":")
-	host := parts[0]
-	port := 0
-	if len(parts) > 1 {
-		fmt.Sscanf(parts[1], "%d", &port)
-	}
+	host, port := parseServerAddr(server.Addr)
 
 	tlsFalse := false
 	config := &Config{
@@ -329,5 +318,52 @@ func TestIntegrationNoMatchingRules(t *testing.T) {
 	err = run(config, true)
 	if err != nil {
 		t.Errorf("run() should succeed even with no matches: %v", err)
+	}
+}
+
+func TestIntegrationMoveMessages(t *testing.T) {
+	server, err := testserver.New("test@localhost", "password")
+	if err != nil {
+		t.Fatalf("Failed to create test server: %v", err)
+	}
+	defer server.Close()
+
+	// Add test messages
+	server.AddMessage("newsletter@company.com", "Weekly News", "Newsletter content")
+	server.AddMessage("friend@gmail.com", "Hello", "Hi there!")
+	server.AddMessage("promo@newsletter.com", "Special Offer", "Buy now!")
+
+	// Create destination folder
+	server.CreateFolder("Newsletters")
+
+	host, port := parseServerAddr(server.Addr)
+
+	tlsFalse := false
+	config := &Config{
+		Server:   host,
+		Port:     port,
+		Username: "test@localhost",
+		Password: "password",
+		TLS:      &tlsFalse,
+		Rules: []Rule{
+			{Sender: "newsletter", MoveToFolder: "Newsletters"},
+		},
+	}
+
+	// Run without dry-run - actually move messages
+	err = run(config, false)
+	if err != nil {
+		t.Fatalf("run() failed: %v", err)
+	}
+
+	// Verify messages were moved
+	inboxCount := server.GetMessageCount("INBOX")
+	if inboxCount != 1 {
+		t.Errorf("INBOX should have 1 message after move, got %d", inboxCount)
+	}
+
+	newsletterCount := server.GetMessageCount("Newsletters")
+	if newsletterCount != 2 {
+		t.Errorf("Newsletters should have 2 messages after move, got %d", newsletterCount)
 	}
 }
