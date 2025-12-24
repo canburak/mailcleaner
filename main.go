@@ -24,7 +24,7 @@ type Config struct {
 
 // Rule defines a sender-matching rule
 type Rule struct {
-	Sender    string `json:"sender"`
+	Sender       string `json:"sender"`
 	MoveToFolder string `json:"move_to_folder"`
 }
 
@@ -114,10 +114,10 @@ func run(config *Config, dryRun bool) error {
 		for _, rule := range config.Rules {
 			if matchesSender(msg.Envelope.From, rule.Sender) {
 				matches = append(matches, matchedMessage{
-					UID:    msg.Uid,
-					From:   formatAddresses(msg.Envelope.From),
+					UID:     msg.Uid,
+					From:    formatAddresses(msg.Envelope.From),
 					Subject: msg.Envelope.Subject,
-					Rule:   rule,
+					Rule:    rule,
 				})
 				break
 			}
