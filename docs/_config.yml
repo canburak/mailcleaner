@@ -1,0 +1,22 @@
+title: MailCleaner
+description: A simple email organizer that matches emails by sender and moves them to folders
+theme: jekyll-theme-cayman
+baseurl: "/mailcleaner"
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
