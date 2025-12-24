@@ -1,5 +1,7 @@
 # MailCleaner
 
+> ⚠️ **Warning**: This is an experimental project, not an actual tool. All code in this repository is AI-generated and has not been reviewed for security or correctness. Use at your own risk. This code may contain bugs, vulnerabilities, or other issues that could compromise your system or data.
+
 A simple email organizer that matches emails by sender and moves them to folders.
 
 ## Features
