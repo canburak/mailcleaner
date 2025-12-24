@@ -70,11 +70,13 @@ cd web && npm run build && cd ..
 ### Accounts
 - `GET /api/accounts` - List all accounts
 - `POST /api/accounts` - Create account
+- `POST /api/accounts/test` - Test connection (without saving)
 - `GET /api/accounts/:id` - Get account
 - `PUT /api/accounts/:id` - Update account
 - `DELETE /api/accounts/:id` - Delete account
-- `POST /api/accounts/:id/test` - Test connection
+- `POST /api/accounts/:id/test` - Test saved account connection
 - `GET /api/accounts/:id/folders` - List IMAP folders
+- `POST /api/accounts/:id/folders` - Create IMAP folder
 
 ### Rules
 - `GET /api/accounts/:id/rules` - List rules for account
@@ -189,6 +191,15 @@ Data is stored in SQLite at `~/.mailcleaner/data.db` by default. The database sc
 - Use TLS connections (default) for IMAP servers
 - The web server should be run behind a reverse proxy in production
 - Consider using OAuth2/XOAUTH2 for Gmail and other providers
+
+## Documentation
+
+For detailed documentation, see the [Documentation Site](docs/index.md):
+
+- [Getting Started](docs/getting-started.md) - Installation and setup
+- [Configuration Reference](docs/configuration.md) - Accounts, rules, and settings
+- [Usage Examples](docs/usage.md) - Common patterns and automation
+- [API Reference](docs/api.md) - REST and WebSocket API documentation
 
 ## License
 

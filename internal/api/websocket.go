@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -163,7 +162,7 @@ func (h *WebSocketHandler) handlePreviewRequest(conn *websocket.Conn, payload js
 				continue
 			}
 
-			if matchesRuleWS(msg, rule) {
+			if msg.MatchesRule(rule) {
 				msg.MatchedRule = rule
 				result.MatchedMessages++
 				result.RuleMatches[rule.ID]++
@@ -206,105 +205,8 @@ func (h *WebSocketHandler) sendProgressWithMessage(conn *websocket.Conn, stage s
 	conn.WriteJSON(WSMessage{Type: "progress", Payload: data})
 }
 
-func matchesRuleWS(msg *models.Message, rule *models.Rule) bool {
-	// Import the matching logic from imap package would be better,
-	// but for simplicity, we duplicate the basic logic here
-	pattern := rule.Pattern
-	switch rule.PatternType {
-	case "sender", "":
-		return containsIgnoreCase(msg.From, pattern)
-	case "subject":
-		return containsIgnoreCase(msg.Subject, pattern)
-	case "from_domain":
-		// Extract domain from From address
-		from := msg.From
-		if idx := lastIndex(from, '@'); idx != -1 {
-			domain := from[idx+1:]
-			// Remove trailing > if present
-			if len(domain) > 0 && domain[len(domain)-1] == '>' {
-				domain = domain[:len(domain)-1]
-			}
-			return containsIgnoreCase(domain, pattern)
-		}
-		return false
-	default:
-		return containsIgnoreCase(msg.From, pattern)
-	}
-}
-
-func containsIgnoreCase(s, substr string) bool {
-	return len(s) >= len(substr) && (len(substr) == 0 ||
-		indexOf(toLower(s), toLower(substr)) >= 0)
-}
-
-func toLower(s string) string {
-	b := make([]byte, len(s))
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c >= 'A' && c <= 'Z' {
-			c += 'a' - 'A'
-		}
-		b[i] = c
-	}
-	return string(b)
-}
-
-func indexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-	return -1
-}
-
-func lastIndex(s string, c byte) int {
-	for i := len(s) - 1; i >= 0; i-- {
-		if s[i] == c {
-			return i
-		}
-	}
-	return -1
-}
-
 // AddWebSocketRoutes adds WebSocket routes to the router
 func AddWebSocketRoutes(r *chi.Mux, store *storage.Store) {
 	wsHandler := NewWebSocketHandler(store)
 	r.Get("/ws/preview", wsHandler.HandleLivePreview)
-}
-
-// ConnectionManager manages active WebSocket connections
-type ConnectionManager struct {
-	connections map[*websocket.Conn]bool
-	mu          sync.RWMutex
-}
-
-// NewConnectionManager creates a new ConnectionManager
-func NewConnectionManager() *ConnectionManager {
-	return &ConnectionManager{
-		connections: make(map[*websocket.Conn]bool),
-	}
-}
-
-// Add adds a connection
-func (m *ConnectionManager) Add(conn *websocket.Conn) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.connections[conn] = true
-}
-
-// Remove removes a connection
-func (m *ConnectionManager) Remove(conn *websocket.Conn) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	delete(m.connections, conn)
-}
-
-// Broadcast sends a message to all connections
-func (m *ConnectionManager) Broadcast(msg WSMessage) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	for conn := range m.connections {
-		conn.WriteJSON(msg)
-	}
 }
