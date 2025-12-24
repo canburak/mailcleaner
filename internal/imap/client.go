@@ -140,8 +140,12 @@ func (c *Client) FetchMessages(limit int) ([]models.Message, error) {
 	// Calculate range (fetch most recent messages first)
 	from := uint32(1)
 	to := mbox.Messages
-	if limit > 0 && uint32(limit) < mbox.Messages {
-		from = mbox.Messages - uint32(limit) + 1
+	// Safe conversion: ensure limit is positive and within uint32 bounds
+	if limit > 0 && limit <= int(^uint32(0)) {
+		limitU32 := uint32(limit)
+		if limitU32 < mbox.Messages {
+			from = mbox.Messages - limitU32 + 1
+		}
 	}
 
 	seqSet := new(imap.SeqSet)
