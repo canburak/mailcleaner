@@ -28,6 +28,14 @@ type Rule struct {
 	MoveToFolder string `json:"move_to_folder"`
 }
 
+// matchedMessage holds info about a message that matched a rule
+type matchedMessage struct {
+	UID     uint32
+	From    string
+	Subject string
+	Rule    Rule
+}
+
 func main() {
 	configPath := flag.String("config", "config.json", "path to config file")
 	dryRun := flag.Bool("dry-run", false, "show what would be done without making changes")
@@ -147,13 +155,6 @@ func run(config *Config, dryRun bool) error {
 	}
 
 	return nil
-}
-
-type matchedMessage struct {
-	UID     uint32
-	From    string
-	Subject string
-	Rule    Rule
 }
 
 func matchesSender(addresses []*imap.Address, pattern string) bool {
