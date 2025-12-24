@@ -143,6 +143,57 @@ GET /api/accounts/:id/folders
 ]
 ```
 
+#### Create Folder
+
+```http
+POST /api/accounts/:id/folders
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "name": "Newsletters"
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "name": "Newsletters"
+}
+```
+
+#### Test Connection (Direct)
+
+Test IMAP connection with credentials without saving the account:
+
+```http
+POST /api/accounts/test
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "server": "imap.gmail.com",
+  "port": 993,
+  "username": "user@gmail.com",
+  "password": "app-password",
+  "tls": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Connection successful",
+  "folders": [...],
+  "total_emails": 1523
+}
+```
+
 ### Rules
 
 #### List Rules for Account
@@ -249,24 +300,20 @@ GET /api/accounts/:id/preview?folder=INBOX&limit=100
 #### Apply Rules
 
 ```http
-POST /api/accounts/:id/apply
-Content-Type: application/json
+POST /api/accounts/:id/apply?folder=INBOX&dry_run=false
 ```
 
-**Request:**
-```json
-{
-  "folder": "INBOX",
-  "dry_run": false
-}
-```
+**Query Parameters:**
+- `folder` - IMAP folder to process (default: INBOX)
+- `dry_run` - If "true", preview only without moving (default: false)
 
 **Response:**
 ```json
 {
-  "success": true,
-  "moved": 45,
-  "errors": []
+  "total_messages": 100,
+  "matched_messages": 45,
+  "messages": [...],
+  "rule_matches": {"1": 45}
 }
 ```
 
@@ -288,9 +335,12 @@ const ws = new WebSocket('ws://localhost:8080/ws/preview');
 ws.onopen = () => {
   // Start preview for an account
   ws.send(JSON.stringify({
-    type: 'start_preview',
-    account_id: 1,
-    folder: 'INBOX'
+    type: 'preview',
+    payload: {
+      account_id: 1,
+      folder: 'INBOX',
+      limit: 100
+    }
   }));
 };
 
@@ -306,52 +356,87 @@ ws.onmessage = (event) => {
 
 ```json
 {
-  "type": "start_preview",
-  "account_id": 1,
-  "folder": "INBOX"
-}
-```
-
-```json
-{
-  "type": "stop_preview"
-}
-```
-
-**Server → Client:**
-
-```json
-{
-  "type": "preview_started",
-  "account_id": 1,
-  "folder": "INBOX"
-}
-```
-
-```json
-{
-  "type": "message",
-  "message": {
-    "uid": 12345,
-    "from": "user@example.com",
-    "subject": "Test email",
-    "matched_rule": { ... }
+  "type": "preview",
+  "payload": {
+    "account_id": 1,
+    "folder": "INBOX",
+    "limit": 100
   }
 }
 ```
 
 ```json
 {
-  "type": "preview_complete",
-  "total": 100,
-  "matched": 25
+  "type": "ping"
 }
 ```
+
+**Server → Client:**
+
+Progress updates during preview:
+
+```json
+{
+  "type": "progress",
+  "payload": {
+    "stage": "connecting",
+    "current": 0,
+    "total": 0,
+    "message": "Connecting to IMAP server..."
+  }
+}
+```
+
+Progress stages: `connecting` → `connected` → `selecting` → `fetching` → `processing`
+
+Message data during processing:
+
+```json
+{
+  "type": "progress",
+  "payload": {
+    "stage": "processing",
+    "current": 5,
+    "total": 100,
+    "message": "Processing message 5 of 100",
+    "message_data": {
+      "uid": 12345,
+      "from": "user@example.com",
+      "subject": "Test email",
+      "matched_rule": { ... }
+    }
+  }
+}
+```
+
+Final result:
+
+```json
+{
+  "type": "result",
+  "payload": {
+    "total_messages": 100,
+    "matched_messages": 25,
+    "messages": [...],
+    "rule_matches": {"1": 25}
+  }
+}
+```
+
+Ping/pong for connection health:
+
+```json
+{
+  "type": "pong"
+}
+```
+
+Error response:
 
 ```json
 {
   "type": "error",
-  "message": "Connection failed"
+  "error": "Connection failed"
 }
 ```
 

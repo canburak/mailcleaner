@@ -279,27 +279,9 @@ func (c *Client) CreateFolder(name string) error {
 	return c.conn.Create(name)
 }
 
+// matchesRule delegates to Message.MatchesRule for pattern matching
 func matchesRule(msg *models.Message, rule *models.Rule) bool {
-	pattern := strings.ToLower(rule.Pattern)
-
-	switch rule.PatternType {
-	case "sender", "":
-		return strings.Contains(strings.ToLower(msg.From), pattern)
-	case "subject":
-		return strings.Contains(strings.ToLower(msg.Subject), pattern)
-	case "from_domain":
-		// Extract domain from From address
-		from := strings.ToLower(msg.From)
-		if idx := strings.LastIndex(from, "@"); idx != -1 {
-			domain := from[idx+1:]
-			// Remove trailing > if present
-			domain = strings.TrimSuffix(domain, ">")
-			return strings.Contains(domain, pattern)
-		}
-		return false
-	default:
-		return strings.Contains(strings.ToLower(msg.From), pattern)
-	}
+	return msg.MatchesRule(rule)
 }
 
 func formatAddresses(addresses []*imap.Address) string {

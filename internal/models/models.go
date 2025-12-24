@@ -2,6 +2,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 )
 
@@ -91,4 +92,33 @@ type ConnectionStatus struct {
 	Message     string   `json:"message"`
 	Folders     []Folder `json:"folders,omitempty"`
 	TotalEmails int      `json:"total_emails,omitempty"`
+}
+
+// MatchesRule checks if a message matches a given rule based on the rule's pattern type.
+// All pattern matching is case-insensitive.
+func (m *Message) MatchesRule(rule *Rule) bool {
+	pattern := strings.ToLower(rule.Pattern)
+
+	switch rule.PatternType {
+	case "sender", "":
+		return strings.Contains(strings.ToLower(m.From), pattern)
+	case "subject":
+		return strings.Contains(strings.ToLower(m.Subject), pattern)
+	case "from_domain":
+		return matchesDomain(m.From, pattern)
+	default:
+		return strings.Contains(strings.ToLower(m.From), pattern)
+	}
+}
+
+// matchesDomain extracts the domain from an email address and checks if it contains the pattern
+func matchesDomain(from, pattern string) bool {
+	fromLower := strings.ToLower(from)
+	if idx := strings.LastIndex(fromLower, "@"); idx != -1 {
+		domain := fromLower[idx+1:]
+		// Remove trailing > if present (e.g., "user@domain.com>")
+		domain = strings.TrimSuffix(domain, ">")
+		return strings.Contains(domain, pattern)
+	}
+	return false
 }
