@@ -1,5 +1,7 @@
 # MailCleaner
 
+> **Warning**: This is an experimental project, not an actual tool. All code in this repository is AI-generated and has not been reviewed for security or correctness. Use at your own risk. This code may contain bugs, vulnerabilities, or other issues that could compromise your system or data.
+
 A full-stack email organizer with a web UI for managing email filtering rules and live IMAP preview.
 
 ## Features
@@ -177,9 +179,13 @@ go test -race ./...
 
 Data is stored in SQLite at `~/.mailcleaner/data.db` by default. The database schema is automatically migrated on startup.
 
+## Supported Protocols
+
+- **IMAP** - Internet Message Access Protocol (TLS enabled by default, set `"tls": false` for plaintext)
+
 ## Security Notes
 
-- Passwords are stored encrypted in the SQLite database
+- Passwords are stored in the SQLite database
 - Use TLS connections (default) for IMAP servers
 - The web server should be run behind a reverse proxy in production
 - Consider using OAuth2/XOAUTH2 for Gmail and other providers

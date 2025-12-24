@@ -24,8 +24,16 @@ type Config struct {
 
 // Rule defines a sender-matching rule
 type Rule struct {
-	Sender    string `json:"sender"`
+	Sender       string `json:"sender"`
 	MoveToFolder string `json:"move_to_folder"`
+}
+
+// matchedMessage holds info about a message that matched a rule
+type matchedMessage struct {
+	UID     uint32
+	From    string
+	Subject string
+	Rule    Rule
 }
 
 func main() {
@@ -114,10 +122,10 @@ func run(config *Config, dryRun bool) error {
 		for _, rule := range config.Rules {
 			if matchesSender(msg.Envelope.From, rule.Sender) {
 				matches = append(matches, matchedMessage{
-					UID:    msg.Uid,
-					From:   formatAddresses(msg.Envelope.From),
+					UID:     msg.Uid,
+					From:    formatAddresses(msg.Envelope.From),
 					Subject: msg.Envelope.Subject,
-					Rule:   rule,
+					Rule:    rule,
 				})
 				break
 			}
@@ -147,13 +155,6 @@ func run(config *Config, dryRun bool) error {
 	}
 
 	return nil
-}
-
-type matchedMessage struct {
-	UID     uint32
-	From    string
-	Subject string
-	Rule    Rule
 }
 
 func matchesSender(addresses []*imap.Address, pattern string) bool {
