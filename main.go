@@ -18,6 +18,7 @@ type Config struct {
 	Port     int    `json:"port"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	TLS      *bool  `json:"tls,omitempty"` // defaults to true
 	Rules    []Rule `json:"rules"`
 }
 
@@ -61,7 +62,14 @@ func run(config *Config, dryRun bool) error {
 	addr := fmt.Sprintf("%s:%d", config.Server, config.Port)
 	log.Printf("Connecting to %s...", addr)
 
-	c, err := client.DialTLS(addr, nil)
+	useTLS := config.TLS == nil || *config.TLS // default to true
+	var c *client.Client
+	var err error
+	if useTLS {
+		c, err = client.DialTLS(addr, nil)
+	} else {
+		c, err = client.Dial(addr)
+	}
 	if err != nil {
 		return fmt.Errorf("connecting to server: %w", err)
 	}
