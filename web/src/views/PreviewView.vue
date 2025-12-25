@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAccountsStore } from '../stores/accounts'
 import { useRulesStore } from '../stores/rules'
 import { usePreviewStore } from '../stores/preview'

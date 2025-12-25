@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAccountsStore } from '../stores/accounts'
 import { useRulesStore } from '../stores/rules'
 
 const props = defineProps<{ id: string }>()
-const route = useRoute()
 const router = useRouter()
 const accountsStore = useAccountsStore()
 const rulesStore = useRulesStore()
