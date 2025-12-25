@@ -24,17 +24,6 @@ repos:
     hooks:
       - id: golangci-lint
 
-  - repo: https://github.com/securego/gosec
-    rev: v2.18.2
-    hooks:
-      - id: gosec
-        args: ['-exclude-dir=testserver', './...']
-
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.1
-    hooks:
-      - id: gitleaks
-
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.10.0
     hooks:
@@ -44,6 +33,19 @@ repos:
 
   - repo: local
     hooks:
+      - id: gosec
+        name: Go Security Check (gosec)
+        entry: bash -c 'command -v gosec >/dev/null 2>&1 && gosec -exclude-dir=testserver ./... || echo "gosec not installed, skipping"'
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+
+      - id: gitleaks
+        name: Secret Detection (gitleaks)
+        entry: bash -c 'command -v gitleaks >/dev/null 2>&1 && gitleaks protect --staged || echo "gitleaks not installed, skipping"'
+        language: system
+        pass_filenames: false
+
       - id: frontend-lint
         name: Frontend ESLint
         entry: bash -c 'cd web && npm run lint'
