@@ -185,6 +185,34 @@ Data is stored in SQLite at `~/.mailcleaner/data.db` by default. The database sc
 
 - **IMAP** - Internet Message Access Protocol (TLS enabled by default, set `"tls": false` for plaintext)
 
+## Deployment
+
+### Deploy to Render (Free)
+
+1. Fork this repository to your GitHub account
+2. Go to [Render Dashboard](https://dashboard.render.com)
+3. Click **New** > **Blueprint**
+4. Connect your GitHub repository
+5. Render will auto-detect `render.yaml` and deploy
+
+Or deploy manually:
+1. Click **New** > **Web Service**
+2. Connect your repository
+3. Configure:
+   - **Runtime**: Go
+   - **Build Command**: `cd web && npm install && npm run build && cd .. && go build -o mailcleaner-server ./cmd/server`
+   - **Start Command**: `./mailcleaner-server -static web/dist -db /tmp/data.db`
+
+> **Note**: Render's free tier has no persistent disk. SQLite data is stored in `/tmp` and will reset on deploys/restarts. For persistent data, upgrade to a paid plan with a disk or use an external database.
+
+### Environment Variables
+
+The server supports these environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | HTTP server port (set automatically by Render) | `8080` |
+
 ## Security Notes
 
 - Passwords are stored in the SQLite database
