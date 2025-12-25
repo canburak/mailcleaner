@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mailcleaner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mailcleaner
+    ports:
+      - "8080:8080"
+    volumes:
+      - mailcleaner-data:/data
+    environment:
+      - MAILCLEANER_DB=/data/data.db
+      - MAILCLEANER_PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/accounts"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  mailcleaner-data:
+    driver: local

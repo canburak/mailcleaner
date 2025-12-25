@@ -1,0 +1,29 @@
+# CODEOWNERS file
+# These owners will be requested for review when someone opens a PR
+
+# Default owners for everything in the repo
+* @maintainer
+
+# Go backend
+/cmd/ @maintainer
+/internal/ @maintainer
+/testserver/ @maintainer
+*.go @maintainer
+
+# Frontend
+/web/ @maintainer
+
+# CI/CD and DevOps
+/.github/ @maintainer
+/Dockerfile @maintainer
+/docker-compose.yml @maintainer
+/.goreleaser.yaml @maintainer
+/Makefile @maintainer
+
+# Documentation
+/docs/ @maintainer
+*.md @maintainer
+
+# Security
+/SECURITY.md @maintainer
+/.github/workflows/security.yml @maintainer

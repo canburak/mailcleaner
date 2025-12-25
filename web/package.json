@@ -1,12 +1,22 @@
 {
-  "name": "web",
+  "name": "mailcleaner-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "lint": "eslint src --ext .vue,.js,.ts,.tsx",
+    "lint:fix": "eslint src --ext .vue,.js,.ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{vue,ts,js,json,css,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{vue,ts,js,json,css,scss}\"",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",
@@ -16,11 +26,23 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.1",
     "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
+    "eslint": "^9.17.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
+    "vitest": "^2.1.8",
+    "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^3.1.4"
   }
 }
