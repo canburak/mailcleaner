@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mailcleaner
+    runtime: go
+    plan: free
+    buildCommand: |
+      cd web && npm install && npm run build && cd .. &&
+      go build -o mailcleaner-server ./cmd/server
+    startCommand: ./mailcleaner-server -static web/dist -db /tmp/data.db
+    envVars:
+      - key: CGO_ENABLED
+        value: "1"
+      - key: GOFLAGS
+        value: "-buildvcs=false"
+    healthCheckPath: /api/accounts
