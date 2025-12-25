@@ -9,6 +9,7 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
       - id: check-json
+        exclude: 'tsconfig.*\.json$'
       - id: mixed-line-ending
 
   - repo: https://github.com/dnephin/pre-commit-golang

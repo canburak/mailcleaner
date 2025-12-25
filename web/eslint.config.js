@@ -61,6 +61,8 @@ export default [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         WebSocket: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
       },
     },
     plugins: {
@@ -72,6 +74,8 @@ export default [
       'vue/multi-word-component-names': 'off',
       'vue/no-v-html': 'warn',
       'vue/require-default-prop': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
 ]

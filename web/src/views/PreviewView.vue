@@ -1,73 +1,76 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAccountsStore } from '../stores/accounts';
-import { useRulesStore } from '../stores/rules';
-import { usePreviewStore } from '../stores/preview';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAccountsStore } from '../stores/accounts'
+import { useRulesStore } from '../stores/rules'
+import { usePreviewStore } from '../stores/preview'
 
-const props = defineProps<{ id: string }>();
-const router = useRouter();
-const accountsStore = useAccountsStore();
-const rulesStore = useRulesStore();
-const previewStore = usePreviewStore();
+const props = defineProps<{ id: string }>()
+const router = useRouter()
+const accountsStore = useAccountsStore()
+const rulesStore = useRulesStore()
+const previewStore = usePreviewStore()
 
-const accountId = ref(parseInt(props.id));
-const selectedFolder = ref('INBOX');
-const messageLimit = ref(100);
-const useLivePreview = ref(true);
-const filterMatched = ref<'all' | 'matched' | 'unmatched'>('all');
+const accountId = ref(parseInt(props.id))
+const selectedFolder = ref('INBOX')
+const messageLimit = ref(100)
+const useLivePreview = ref(true)
+const filterMatched = ref<'all' | 'matched' | 'unmatched'>('all')
 
 const displayedMessages = computed(() => {
   if (filterMatched.value === 'matched') {
-    return previewStore.matchedMessages;
+    return previewStore.matchedMessages
   } else if (filterMatched.value === 'unmatched') {
-    return previewStore.unmatchedMessages;
+    return previewStore.unmatchedMessages
   }
-  return previewStore.messages;
-});
+  return previewStore.messages
+})
 
 onMounted(async () => {
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+  await accountsStore.fetchAccount(accountId.value)
+  await accountsStore.fetchFolders(accountId.value)
+  await rulesStore.fetchRules(accountId.value)
+})
 
 onUnmounted(() => {
-  previewStore.stopLivePreview();
-});
+  previewStore.stopLivePreview()
+})
 
-watch(() => props.id, async (newId) => {
-  accountId.value = parseInt(newId);
-  previewStore.clearPreview();
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+watch(
+  () => props.id,
+  async newId => {
+    accountId.value = parseInt(newId)
+    previewStore.clearPreview()
+    await accountsStore.fetchAccount(accountId.value)
+    await accountsStore.fetchFolders(accountId.value)
+    await rulesStore.fetchRules(accountId.value)
+  }
+)
 
 function goBack() {
-  router.push(`/accounts/${accountId.value}`);
+  router.push(`/accounts/${accountId.value}`)
 }
 
 async function runPreview() {
   if (useLivePreview.value) {
-    previewStore.startLivePreview(accountId.value, selectedFolder.value, messageLimit.value);
+    previewStore.startLivePreview(accountId.value, selectedFolder.value, messageLimit.value)
   } else {
-    await previewStore.fetchPreview(accountId.value, selectedFolder.value, messageLimit.value);
+    await previewStore.fetchPreview(accountId.value, selectedFolder.value, messageLimit.value)
   }
 }
 
 function stopPreview() {
-  previewStore.stopLivePreview();
+  previewStore.stopLivePreview()
 }
 
 async function applyRules() {
   if (confirm('This will move matching emails to their target folders. Continue?')) {
-    await previewStore.applyRules(accountId.value, selectedFolder.value, false);
+    await previewStore.applyRules(accountId.value, selectedFolder.value, false)
   }
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString();
+  return new Date(dateStr).toLocaleString()
 }
 </script>
 
@@ -119,11 +122,7 @@ function formatDate(dateStr: string) {
         <div class="form-group">
           <label class="form-label">&nbsp;</label>
           <div class="flex gap-2">
-            <button
-              class="btn btn-primary"
-              @click="runPreview"
-              :disabled="previewStore.loading"
-            >
+            <button class="btn btn-primary" @click="runPreview" :disabled="previewStore.loading">
               {{ previewStore.loading ? 'Loading...' : 'Run Preview' }}
             </button>
             <button
@@ -138,7 +137,8 @@ function formatDate(dateStr: string) {
       </div>
 
       <div v-if="rulesStore.rules.length === 0" class="alert alert-info mt-4">
-        No rules configured. <router-link :to="`/accounts/${accountId}/rules`">Create some rules</router-link> first.
+        No rules configured.
+        <router-link :to="`/accounts/${accountId}/rules`">Create some rules</router-link> first.
       </div>
     </div>
 
@@ -153,9 +153,12 @@ function formatDate(dateStr: string) {
       <div class="progress-bar mt-4">
         <div
           class="progress-bar-fill"
-          :style="{ width: previewStore.progress.total > 0
-            ? `${(previewStore.progress.current / previewStore.progress.total) * 100}%`
-            : '0%' }"
+          :style="{
+            width:
+              previewStore.progress.total > 0
+                ? `${(previewStore.progress.current / previewStore.progress.total) * 100}%`
+                : '0%',
+          }"
         ></div>
       </div>
     </div>

@@ -1,148 +1,148 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { accountsApi } from '../api/client';
-import type { Account, AccountCreate, ConnectionStatus, Folder } from '../api/types';
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import { accountsApi } from '../api/client'
+import type { Account, AccountCreate, ConnectionStatus, Folder } from '../api/types'
 
 export const useAccountsStore = defineStore('accounts', () => {
-  const accounts = ref<Account[]>([]);
-  const currentAccount = ref<Account | null>(null);
-  const folders = ref<Folder[]>([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+  const accounts = ref<Account[]>([])
+  const currentAccount = ref<Account | null>(null)
+  const folders = ref<Folder[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
   const sortedAccounts = computed(() =>
     [...accounts.value].sort((a, b) => a.name.localeCompare(b.name))
-  );
+  )
 
   async function fetchAccounts() {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      accounts.value = await accountsApi.list();
+      accounts.value = await accountsApi.list()
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
+      error.value = e.response?.data?.error || e.message
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function fetchAccount(id: number) {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      currentAccount.value = await accountsApi.get(id);
+      currentAccount.value = await accountsApi.get(id)
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
+      error.value = e.response?.data?.error || e.message
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function createAccount(data: AccountCreate): Promise<Account | null> {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      const account = await accountsApi.create(data);
-      accounts.value.push(account);
-      return account;
+      const account = await accountsApi.create(data)
+      accounts.value.push(account)
+      return account
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return null;
+      error.value = e.response?.data?.error || e.message
+      return null
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function updateAccount(id: number, data: Partial<AccountCreate>): Promise<Account | null> {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      const account = await accountsApi.update(id, data);
-      const index = accounts.value.findIndex(a => a.id === id);
+      const account = await accountsApi.update(id, data)
+      const index = accounts.value.findIndex(a => a.id === id)
       if (index >= 0) {
-        accounts.value[index] = account;
+        accounts.value[index] = account
       }
       if (currentAccount.value?.id === id) {
-        currentAccount.value = account;
+        currentAccount.value = account
       }
-      return account;
+      return account
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return null;
+      error.value = e.response?.data?.error || e.message
+      return null
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function deleteAccount(id: number): Promise<boolean> {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      await accountsApi.delete(id);
-      accounts.value = accounts.value.filter(a => a.id !== id);
+      await accountsApi.delete(id)
+      accounts.value = accounts.value.filter(a => a.id !== id)
       if (currentAccount.value?.id === id) {
-        currentAccount.value = null;
+        currentAccount.value = null
       }
-      return true;
+      return true
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return false;
+      error.value = e.response?.data?.error || e.message
+      return false
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function testAccount(id: number): Promise<ConnectionStatus | null> {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      return await accountsApi.test(id);
+      return await accountsApi.test(id)
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return null;
+      error.value = e.response?.data?.error || e.message
+      return null
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function testAccountDirect(data: AccountCreate): Promise<ConnectionStatus | null> {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      return await accountsApi.testDirect(data);
+      return await accountsApi.testDirect(data)
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return null;
+      error.value = e.response?.data?.error || e.message
+      return null
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function fetchFolders(id: number) {
     try {
-      folders.value = await accountsApi.getFolders(id);
+      folders.value = await accountsApi.getFolders(id)
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
+      error.value = e.response?.data?.error || e.message
     }
   }
 
   async function createFolder(id: number, name: string): Promise<boolean> {
     try {
-      await accountsApi.createFolder(id, name);
-      await fetchFolders(id);
-      return true;
+      await accountsApi.createFolder(id, name)
+      await fetchFolders(id)
+      return true
     } catch (e: any) {
-      error.value = e.response?.data?.error || e.message;
-      return false;
+      error.value = e.response?.data?.error || e.message
+      return false
     }
   }
 
   function selectAccount(account: Account | null) {
-    currentAccount.value = account;
+    currentAccount.value = account
     if (account) {
-      fetchFolders(account.id);
+      fetchFolders(account.id)
     } else {
-      folders.value = [];
+      folders.value = []
     }
   }
 
@@ -163,5 +163,5 @@ export const useAccountsStore = defineStore('accounts', () => {
     fetchFolders,
     createFolder,
     selectAccount,
-  };
-});
+  }
+})

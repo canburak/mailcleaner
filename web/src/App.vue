@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router';
-import { useAccountsStore } from './stores/accounts';
-import { onMounted } from 'vue';
+import { RouterView, RouterLink } from 'vue-router'
+import { useAccountsStore } from './stores/accounts'
+import { onMounted } from 'vue'
 
-const accountsStore = useAccountsStore();
+const accountsStore = useAccountsStore()
 
 onMounted(() => {
-  accountsStore.fetchAccounts();
-});
+  accountsStore.fetchAccounts()
+})
 </script>
 
 <template>

@@ -1,40 +1,43 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAccountsStore } from '../stores/accounts';
-import { useRulesStore } from '../stores/rules';
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAccountsStore } from '../stores/accounts'
+import { useRulesStore } from '../stores/rules'
 
-const props = defineProps<{ id: string }>();
-const route = useRoute();
-const router = useRouter();
-const accountsStore = useAccountsStore();
-const rulesStore = useRulesStore();
+const props = defineProps<{ id: string }>()
+const route = useRoute()
+const router = useRouter()
+const accountsStore = useAccountsStore()
+const rulesStore = useRulesStore()
 
-const accountId = ref(parseInt(props.id));
+const accountId = ref(parseInt(props.id))
 
 onMounted(async () => {
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+  await accountsStore.fetchAccount(accountId.value)
+  await accountsStore.fetchFolders(accountId.value)
+  await rulesStore.fetchRules(accountId.value)
+})
 
-watch(() => props.id, async (newId) => {
-  accountId.value = parseInt(newId);
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+watch(
+  () => props.id,
+  async newId => {
+    accountId.value = parseInt(newId)
+    await accountsStore.fetchAccount(accountId.value)
+    await accountsStore.fetchFolders(accountId.value)
+    await rulesStore.fetchRules(accountId.value)
+  }
+)
 
 function goToRules() {
-  router.push(`/accounts/${accountId.value}/rules`);
+  router.push(`/accounts/${accountId.value}/rules`)
 }
 
 function goToPreview() {
-  router.push(`/accounts/${accountId.value}/preview`);
+  router.push(`/accounts/${accountId.value}/preview`)
 }
 
 function goBack() {
-  router.push('/accounts');
+  router.push('/accounts')
 }
 </script>
 
@@ -64,7 +67,11 @@ function goBack() {
           <div class="info-list">
             <div class="info-item">
               <span class="info-label">Server</span>
-              <span class="info-value">{{ accountsStore.currentAccount.server }}:{{ accountsStore.currentAccount.port }}</span>
+              <span class="info-value"
+                >{{ accountsStore.currentAccount.server }}:{{
+                  accountsStore.currentAccount.port
+                }}</span
+              >
             </div>
             <div class="info-item">
               <span class="info-label">Username</span>
@@ -73,7 +80,10 @@ function goBack() {
             <div class="info-item">
               <span class="info-label">TLS</span>
               <span class="info-value">
-                <span :class="accountsStore.currentAccount.tls ? 'badge-success' : 'badge-warning'" class="badge">
+                <span
+                  :class="accountsStore.currentAccount.tls ? 'badge-success' : 'badge-warning'"
+                  class="badge"
+                >
                   {{ accountsStore.currentAccount.tls ? 'Enabled' : 'Disabled' }}
                 </span>
               </span>

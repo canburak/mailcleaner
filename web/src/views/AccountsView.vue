@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAccountsStore } from '../stores/accounts';
-import type { AccountCreate, ConnectionStatus } from '../api/types';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAccountsStore } from '../stores/accounts'
+import type { AccountCreate, ConnectionStatus } from '../api/types'
 
-const router = useRouter();
-const accountsStore = useAccountsStore();
+const router = useRouter()
+const accountsStore = useAccountsStore()
 
-const showModal = ref(false);
-const isEditing = ref(false);
-const editingId = ref<number | null>(null);
-const testResult = ref<ConnectionStatus | null>(null);
-const testing = ref(false);
+const showModal = ref(false)
+const isEditing = ref(false)
+const editingId = ref<number | null>(null)
+const testResult = ref<ConnectionStatus | null>(null)
+const testing = ref(false)
 
 const form = ref<AccountCreate>({
   name: '',
@@ -20,13 +20,13 @@ const form = ref<AccountCreate>({
   username: '',
   password: '',
   tls: true,
-});
+})
 
-const sortedAccounts = computed(() => accountsStore.sortedAccounts);
+const sortedAccounts = computed(() => accountsStore.sortedAccounts)
 
 function openAddModal() {
-  isEditing.value = false;
-  editingId.value = null;
+  isEditing.value = false
+  editingId.value = null
   form.value = {
     name: '',
     server: '',
@@ -34,14 +34,14 @@ function openAddModal() {
     username: '',
     password: '',
     tls: true,
-  };
-  testResult.value = null;
-  showModal.value = true;
+  }
+  testResult.value = null
+  showModal.value = true
 }
 
 function openEditModal(account: any) {
-  isEditing.value = true;
-  editingId.value = account.id;
+  isEditing.value = true
+  editingId.value = account.id
   form.value = {
     name: account.name,
     server: account.server,
@@ -49,47 +49,47 @@ function openEditModal(account: any) {
     username: account.username,
     password: '',
     tls: account.tls,
-  };
-  testResult.value = null;
-  showModal.value = true;
+  }
+  testResult.value = null
+  showModal.value = true
 }
 
 function closeModal() {
-  showModal.value = false;
-  testResult.value = null;
+  showModal.value = false
+  testResult.value = null
 }
 
 async function testConnection() {
-  testing.value = true;
-  testResult.value = null;
+  testing.value = true
+  testResult.value = null
   try {
     if (isEditing.value && editingId.value && !form.value.password) {
-      testResult.value = await accountsStore.testAccount(editingId.value);
+      testResult.value = await accountsStore.testAccount(editingId.value)
     } else {
-      testResult.value = await accountsStore.testAccountDirect(form.value);
+      testResult.value = await accountsStore.testAccountDirect(form.value)
     }
   } finally {
-    testing.value = false;
+    testing.value = false
   }
 }
 
 async function saveAccount() {
   if (isEditing.value && editingId.value) {
-    await accountsStore.updateAccount(editingId.value, form.value);
+    await accountsStore.updateAccount(editingId.value, form.value)
   } else {
-    await accountsStore.createAccount(form.value);
+    await accountsStore.createAccount(form.value)
   }
-  closeModal();
+  closeModal()
 }
 
 async function deleteAccount(id: number) {
   if (confirm('Are you sure you want to delete this account?')) {
-    await accountsStore.deleteAccount(id);
+    await accountsStore.deleteAccount(id)
   }
 }
 
 function viewAccount(id: number) {
-  router.push(`/accounts/${id}`);
+  router.push(`/accounts/${id}`)
 }
 </script>
 
@@ -127,7 +127,12 @@ function viewAccount(id: number) {
         <div class="account-details">
           <p><strong>Server:</strong> {{ account.server }}:{{ account.port }}</p>
           <p><strong>Username:</strong> {{ account.username }}</p>
-          <p><strong>TLS:</strong> <span :class="account.tls ? 'badge-success' : 'badge-warning'" class="badge">{{ account.tls ? 'Enabled' : 'Disabled' }}</span></p>
+          <p>
+            <strong>TLS:</strong>
+            <span :class="account.tls ? 'badge-success' : 'badge-warning'" class="badge">{{
+              account.tls ? 'Enabled' : 'Disabled'
+            }}</span>
+          </p>
         </div>
         <div class="account-footer">
           <button class="btn btn-primary" @click="viewAccount(account.id)">Manage</button>
@@ -145,12 +150,24 @@ function viewAccount(id: number) {
         <form @submit.prevent="saveAccount" class="modal-body">
           <div class="form-group">
             <label class="form-label">Account Name</label>
-            <input v-model="form.name" type="text" class="form-input" required placeholder="My Email" />
+            <input
+              v-model="form.name"
+              type="text"
+              class="form-input"
+              required
+              placeholder="My Email"
+            />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="form-group">
               <label class="form-label">IMAP Server</label>
-              <input v-model="form.server" type="text" class="form-input" required placeholder="imap.example.com" />
+              <input
+                v-model="form.server"
+                type="text"
+                class="form-input"
+                required
+                placeholder="imap.example.com"
+              />
             </div>
             <div class="form-group">
               <label class="form-label">Port</label>
@@ -159,11 +176,24 @@ function viewAccount(id: number) {
           </div>
           <div class="form-group">
             <label class="form-label">Username</label>
-            <input v-model="form.username" type="text" class="form-input" required placeholder="user@example.com" />
+            <input
+              v-model="form.username"
+              type="text"
+              class="form-input"
+              required
+              placeholder="user@example.com"
+            />
           </div>
           <div class="form-group">
-            <label class="form-label">Password {{ isEditing ? '(leave blank to keep current)' : '' }}</label>
-            <input v-model="form.password" type="password" class="form-input" :required="!isEditing" />
+            <label class="form-label"
+              >Password {{ isEditing ? '(leave blank to keep current)' : '' }}</label
+            >
+            <input
+              v-model="form.password"
+              type="password"
+              class="form-input"
+              :required="!isEditing"
+            />
           </div>
           <div class="form-group">
             <label class="form-checkbox">
@@ -172,8 +202,14 @@ function viewAccount(id: number) {
             </label>
           </div>
 
-          <div v-if="testResult" class="alert" :class="testResult.success ? 'alert-success' : 'alert-error'">
-            <strong>{{ testResult.success ? 'Connection successful!' : 'Connection failed' }}</strong>
+          <div
+            v-if="testResult"
+            class="alert"
+            :class="testResult.success ? 'alert-success' : 'alert-error'"
+          >
+            <strong>{{
+              testResult.success ? 'Connection successful!' : 'Connection failed'
+            }}</strong>
             <p>{{ testResult.message }}</p>
             <p v-if="testResult.success && testResult.total_emails !== undefined">
               Found {{ testResult.total_emails }} emails in INBOX
@@ -181,7 +217,12 @@ function viewAccount(id: number) {
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" @click="testConnection" :disabled="testing">
+            <button
+              type="button"
+              class="btn btn-outline"
+              @click="testConnection"
+              :disabled="testing"
+            >
               {{ testing ? 'Testing...' : 'Test Connection' }}
             </button>
             <button type="button" class="btn btn-outline" @click="closeModal">Cancel</button>
