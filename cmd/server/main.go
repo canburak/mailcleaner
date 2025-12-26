@@ -8,13 +8,24 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/mailcleaner/mailcleaner/internal/api"
 	"github.com/mailcleaner/mailcleaner/internal/storage"
 )
 
+func getPort() int {
+	// Check PORT environment variable first (used by Render, Railway, etc.)
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			return p
+		}
+	}
+	return 8080
+}
+
 func main() {
-	port := flag.Int("port", 8080, "port to listen on")
+	port := flag.Int("port", getPort(), "port to listen on")
 	dbPath := flag.String("db", "", "path to database file (default: ~/.mailcleaner/data.db)")
 	staticDir := flag.String("static", "", "path to static files directory")
 	flag.Parse()
