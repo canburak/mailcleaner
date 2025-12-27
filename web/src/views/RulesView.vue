@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useAccountsStore } from '../stores/accounts';
-import { useRulesStore } from '../stores/rules';
-import type { RuleCreate } from '../api/types';
+import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAccountsStore } from '../stores/accounts'
+import { useRulesStore } from '../stores/rules'
+import type { RuleCreate } from '../api/types'
 
-const props = defineProps<{ id: string }>();
-const router = useRouter();
-const accountsStore = useAccountsStore();
-const rulesStore = useRulesStore();
+const props = defineProps<{ id: string }>()
+const router = useRouter()
+const accountsStore = useAccountsStore()
+const rulesStore = useRulesStore()
 
-const accountId = ref(parseInt(props.id));
-const showModal = ref(false);
-const isEditing = ref(false);
-const editingId = ref<number | null>(null);
+const accountId = ref(parseInt(props.id))
+const showModal = ref(false)
+const isEditing = ref(false)
+const editingId = ref<number | null>(null)
 
 const form = ref<RuleCreate>({
   name: '',
@@ -22,28 +22,31 @@ const form = ref<RuleCreate>({
   move_to_folder: '',
   enabled: true,
   priority: 0,
-});
+})
 
 onMounted(async () => {
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+  await accountsStore.fetchAccount(accountId.value)
+  await accountsStore.fetchFolders(accountId.value)
+  await rulesStore.fetchRules(accountId.value)
+})
 
-watch(() => props.id, async (newId) => {
-  accountId.value = parseInt(newId);
-  await accountsStore.fetchAccount(accountId.value);
-  await accountsStore.fetchFolders(accountId.value);
-  await rulesStore.fetchRules(accountId.value);
-});
+watch(
+  () => props.id,
+  async newId => {
+    accountId.value = parseInt(newId)
+    await accountsStore.fetchAccount(accountId.value)
+    await accountsStore.fetchFolders(accountId.value)
+    await rulesStore.fetchRules(accountId.value)
+  }
+)
 
 function goBack() {
-  router.push(`/accounts/${accountId.value}`);
+  router.push(`/accounts/${accountId.value}`)
 }
 
 function openAddModal() {
-  isEditing.value = false;
-  editingId.value = null;
+  isEditing.value = false
+  editingId.value = null
   form.value = {
     name: '',
     pattern: '',
@@ -51,13 +54,13 @@ function openAddModal() {
     move_to_folder: '',
     enabled: true,
     priority: rulesStore.rules.length,
-  };
-  showModal.value = true;
+  }
+  showModal.value = true
 }
 
 function openEditModal(rule: any) {
-  isEditing.value = true;
-  editingId.value = rule.id;
+  isEditing.value = true
+  editingId.value = rule.id
   form.value = {
     name: rule.name,
     pattern: rule.pattern,
@@ -65,31 +68,31 @@ function openEditModal(rule: any) {
     move_to_folder: rule.move_to_folder,
     enabled: rule.enabled,
     priority: rule.priority,
-  };
-  showModal.value = true;
+  }
+  showModal.value = true
 }
 
 function closeModal() {
-  showModal.value = false;
+  showModal.value = false
 }
 
 async function saveRule() {
   if (isEditing.value && editingId.value) {
-    await rulesStore.updateRule(editingId.value, form.value);
+    await rulesStore.updateRule(editingId.value, form.value)
   } else {
-    await rulesStore.createRule(accountId.value, form.value);
+    await rulesStore.createRule(accountId.value, form.value)
   }
-  closeModal();
+  closeModal()
 }
 
 async function deleteRule(id: number) {
   if (confirm('Are you sure you want to delete this rule?')) {
-    await rulesStore.deleteRule(id);
+    await rulesStore.deleteRule(id)
   }
 }
 
 async function toggleRule(id: number) {
-  await rulesStore.toggleRule(id);
+  await rulesStore.toggleRule(id)
 }
 </script>
 
@@ -119,7 +122,12 @@ async function toggleRule(id: number) {
     </div>
 
     <div v-else class="rules-list">
-      <div v-for="rule in rulesStore.sortedRules" :key="rule.id" class="card rule-card" :class="{ disabled: !rule.enabled }">
+      <div
+        v-for="rule in rulesStore.sortedRules"
+        :key="rule.id"
+        class="card rule-card"
+        :class="{ disabled: !rule.enabled }"
+      >
         <div class="rule-header">
           <div class="rule-info">
             <label class="form-checkbox">
@@ -160,7 +168,13 @@ async function toggleRule(id: number) {
         <form @submit.prevent="saveRule" class="modal-body">
           <div class="form-group">
             <label class="form-label">Rule Name</label>
-            <input v-model="form.name" type="text" class="form-input" required placeholder="Newsletter Filter" />
+            <input
+              v-model="form.name"
+              type="text"
+              class="form-input"
+              required
+              placeholder="Newsletter Filter"
+            />
           </div>
 
           <div class="form-group">
@@ -174,15 +188,32 @@ async function toggleRule(id: number) {
 
           <div class="form-group">
             <label class="form-label">Pattern</label>
-            <input v-model="form.pattern" type="text" class="form-input" required placeholder="newsletter@, github.com" />
+            <input
+              v-model="form.pattern"
+              type="text"
+              class="form-input"
+              required
+              placeholder="newsletter@, github.com"
+            />
             <small class="text-muted">The text to match (case-insensitive)</small>
           </div>
 
           <div class="form-group">
             <label class="form-label">Move to Folder</label>
-            <input v-model="form.move_to_folder" type="text" class="form-input" list="folders" required placeholder="Newsletters" />
+            <input
+              v-model="form.move_to_folder"
+              type="text"
+              class="form-input"
+              list="folders"
+              required
+              placeholder="Newsletters"
+            />
             <datalist id="folders">
-              <option v-for="folder in accountsStore.folders" :key="folder.name" :value="folder.name">
+              <option
+                v-for="folder in accountsStore.folders"
+                :key="folder.name"
+                :value="folder.name"
+              >
                 {{ folder.name }}
               </option>
             </datalist>

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -32,6 +32,6 @@ const router = createRouter({
       props: true,
     },
   ],
-});
+})
 
-export default router;
+export default router

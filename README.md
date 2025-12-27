@@ -1,5 +1,11 @@
 # MailCleaner
 
+[![Test](https://github.com/mailcleaner/mailcleaner/actions/workflows/test.yml/badge.svg)](https://github.com/mailcleaner/mailcleaner/actions/workflows/test.yml)
+[![Security Scan](https://github.com/mailcleaner/mailcleaner/actions/workflows/security.yml/badge.svg)](https://github.com/mailcleaner/mailcleaner/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/mailcleaner/mailcleaner/branch/main/graph/badge.svg)](https://codecov.io/gh/mailcleaner/mailcleaner)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mailcleaner/mailcleaner)](https://goreportcard.com/report/github.com/mailcleaner/mailcleaner)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > **Warning**: This is an experimental project, not an actual tool. All code in this repository is AI-generated and has not been reviewed for security or correctness. Use at your own risk. This code may contain bugs, vulnerabilities, or other issues that could compromise your system or data.
 
 A full-stack email organizer with a web UI for managing email filtering rules and live IMAP preview.
@@ -163,18 +169,56 @@ All patterns are case-insensitive partial matches.
 - Go 1.21+
 - Node.js 18+
 - SQLite (via CGO)
+- Make (optional, but recommended)
+
+### Quick Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/your-username/mailcleaner.git
+cd mailcleaner
+./scripts/setup.sh
+```
+
+### Using Make
+
+```bash
+make help           # Show all available commands
+make build          # Build all binaries
+make test           # Run tests
+make test-cover     # Run tests with coverage
+make lint           # Run linters
+make dev            # Start development servers
+make security-scan  # Run security scanners
+```
 
 ### Running Tests
 
 ```bash
-# Run all Go tests
+# Using make
+make test           # Run all Go tests
+make test-cover     # Run with coverage
+make test-race      # Run with race detection
+
+# Or directly
 go test ./...
-
-# Run with coverage
 go test -cover ./...
-
-# Run with race detection
 go test -race ./...
+
+# Frontend tests
+cd web && npm run test
+cd web && npm run test:e2e
+```
+
+### Docker
+
+```bash
+# Build and run with Docker
+docker build -t mailcleaner .
+docker run -p 8080:8080 mailcleaner
+
+# Or use docker-compose
+docker-compose up -d
 ```
 
 ### Database
@@ -228,6 +272,14 @@ For detailed documentation, see the [Documentation Site](docs/index.md):
 - [Configuration Reference](docs/configuration.md) - Accounts, rules, and settings
 - [Usage Examples](docs/usage.md) - Common patterns and automation
 - [API Reference](docs/api.md) - REST and WebSocket API documentation
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+- Read the [Code of Conduct](CODE_OF_CONDUCT.md)
+- Check existing [issues](https://github.com/mailcleaner/mailcleaner/issues)
+- Submit pull requests following our guidelines
 
 ## License
 
